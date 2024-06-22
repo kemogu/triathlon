@@ -5,8 +5,9 @@ Athlete::Athlete() : id(0), swim_speed(0), bike_speed(0), run_speed(0), position
     // default constructor
 }
 
-Athlete::Athlete(int athlete_id) : id(athlete_id), position(0), total_time(0), current_parkur(0) {
-    swim_speed = std::rand() % 5 + 1;
+Athlete::Athlete(int athlete_id, float swim_speed_generated) : id(athlete_id), position(0), total_time(0), current_parkur(0) {
+
+    swim_speed = swim_speed_generated;
     bike_speed = swim_speed * 3;
     run_speed = swim_speed / 3;
 }

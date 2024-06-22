@@ -5,6 +5,5 @@ int main() {
     const int num_teams = 300;
     Triathlon triathlon(num_teams);
     triathlon.start_race();
-    triathlon.print_results();
     return 0;
 }

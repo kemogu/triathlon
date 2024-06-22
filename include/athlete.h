@@ -12,7 +12,7 @@ public:
     int current_parkur; // 0 yüzme, 1 bisiklet, 2 koşma
 
     Athlete();  // default constructor
-    Athlete(int athlete_id);  // parametreli constructor
+    Athlete(int athlete_id, float swim_speed_generated);  // parametreli constructor
 
     __device__ void update_position(float speed, float time_seconds);
     __device__ void switch_parkur(); // parkur geçişi fonksiyonu
