@@ -63,7 +63,15 @@ void Triathlon::update_positions(float time_interval) {
     cudaMalloc(&d_athletes, num_athletes * sizeof(Athlete));
     cudaMemcpy(d_athletes, athletes, num_athletes * sizeof(Athlete), cudaMemcpyHostToDevice);
 
-    update_positions_kernel<<<(num_athletes + 255) / 256, 256>>>(d_athletes, num_athletes, time_interval);
+    int blockSize;
+    int minGridSize;
+    int gridSize;
+
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, update_positions_kernel, 0, num_athletes);
+
+    gridSize = (num_athletes + blockSize - 1) / blockSize;
+    
+    update_positions_kernel<<<gridSize, blockSize>>>(d_athletes, num_athletes, time_interval);
 
     cudaMemcpy(athletes, d_athletes, num_athletes * sizeof(Athlete), cudaMemcpyDeviceToHost);
     cudaFree(d_athletes);
