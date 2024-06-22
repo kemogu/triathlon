@@ -24,6 +24,8 @@ private:
     void initialize_teams();
     void update_positions(float time_interval);
     bool race_finished();
+    Athlete* find_first_athlete();
+    Team* find_best_team();
 };
 
 #endif // TRIATHLON_H

@@ -9,6 +9,7 @@ __global__ void update_positions_kernel(Athlete* athletes, int num_athletes, flo
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < num_athletes) {
         float speed;
+        bool isFinished = false;
         switch (athletes[idx].current_parkur) {
             case 0: // yüzme parkuru
                 speed = athletes[idx].swim_speed;
@@ -19,8 +20,15 @@ __global__ void update_positions_kernel(Athlete* athletes, int num_athletes, flo
             case 2: // koşu parkuru
                 speed = athletes[idx].run_speed;
                 break;
+            case 3: // bitiş
+                isFinished = true;
+                break;
         }
-        athletes[idx].update_position(speed, time_interval);
+        if (isFinished == false)
+        {
+            athletes[idx].update_position(speed, time_interval);
+        }
+        
     }
 }
 
@@ -62,12 +70,15 @@ void Triathlon::update_positions(float time_interval) {
 }
 
 bool Triathlon::race_finished() {
+    int control_of_num_athletes = 0;
     for (int i = 0; i < num_athletes; ++i) {
-        if (athletes[i].current_parkur == 2 && athletes[i].position >= 55000) {
+        if (athletes[i].current_parkur == 3) {
             // 55 km toplam parkur ve koşu parkuru bitiş koşulları
-            return true;
+            control_of_num_athletes ++;
         }
     }
+    if(num_athletes == control_of_num_athletes)
+        return true;
     return false;
 }
 
@@ -75,49 +86,60 @@ void Triathlon::start_race() {
     const float time_interval = 1.0f; // saniyede bir güncelleme
     while (!race_finished()) {
         update_positions(time_interval);
+        print_positions();
     }
-    print_positions();
+    //print_positions();
     print_results();
 }
 void Triathlon::print_positions() {
     for (int i = 0; i < num_athletes; ++i) {
-        std::cout << "Athlete " << athletes[i].id << ": " << athletes[i].position << " meters, Total time: " << athletes[i].total_time << " seconds" << std::endl;
+        std::cout << "Athlete " << athletes[i].id << ": " << athletes[i].position <<" ," << athletes[i].total_position  << " meters, Total time: " << athletes[i].total_time << " seconds" << " state: " << athletes[i].current_parkur << std::endl;
     }
 }
 
 void Triathlon::print_results() {
+    Athlete* first_athlete = find_first_athlete();
+    Team* best_team = find_best_team();
+
+    if (first_athlete) {
+        std::cout << "First athlete to finish: Athlete " << first_athlete->id << " with total time: " << first_athlete->total_time << " seconds" << std::endl;
+    }
+
+    if (best_team) {
+        std::cout << "Best team: Team " << best_team->team_id << " with total time: " << best_team->team_total_time << " seconds" << std::endl;
+    }
+    for (int i = 0; i < num_teams; ++i) {
+        teams[i]->calculate_team_total_time();
+        std::cout << "Team Name: Team " << teams[i]->team_id << " with total time: " << teams[i]->team_total_time << " seconds" << std::endl;
+    }
+}
+Athlete* Triathlon::find_first_athlete() {
     Athlete* first_athlete = nullptr;
-    float min_time = FLT_MAX;
+    float min_time = std::numeric_limits<float>::max();
+
+    for (int i = 0; i < num_athletes; ++i) {
+        if (athletes[i].current_parkur == 3 && athletes[i].total_time < min_time) {
+            min_time = athletes[i].total_time;
+            first_athlete = &athletes[i];
+        }
+    }
+
+    return first_athlete;
+}
+
+Team* Triathlon::find_best_team() {
+    Team* best_team = nullptr;
+    float min_time = std::numeric_limits<float>::max();
 
     for (int i = 0; i < num_teams; ++i) {
         teams[i]->calculate_team_total_time();
-    }
-    // takımları sıralama
-    std::sort(teams, teams + num_teams, [](Team* a, Team* b) {
-        return a->team_total_time < b->team_total_time;
-    });
-    // atletleri sıralama
-    for (int i = 0; i < num_teams; ++i) {
-        std::cout << "Team " << teams[i]->team_id << " results:" << std::endl;
-        for (int j = 0; j < 3; ++j) {
-            Athlete* athlete = teams[i]->get_athlete(j);
-            if (athlete != nullptr) {
-                std::cout << "Athlete " << athlete->id << ": " << athlete->position << " meters, Total time: " << athlete->total_time << " seconds. " << athlete->swim_speed<< "m/s swim speed. " << athlete->bike_speed<< "m/s bike speed. " << athlete->run_speed<< "m/s run speed." << std::endl;
-                // ilk bitiren atleti bulma
-                if (athlete->total_time < min_time) {
-                    min_time = athlete->total_time;
-                    first_athlete = athlete;
-                }
-            }
+        float team_time = teams[i]->team_total_time;
+        if (team_time < min_time) {
+            min_time = team_time;
+            best_team = teams[i];
         }
-        std::cout << "Team " << teams[i]->team_id << " total time: " << teams[i]->team_total_time << " seconds" << std::endl;
-        std::cout << std::endl;
     }
 
-    if (first_athlete != nullptr) {
-        std::cout << "First athlete to finish: " << first_athlete->id << ", Total time: " << first_athlete->total_time << " seconds" << " swim speed: " << first_athlete->swim_speed << " bike speed: " << first_athlete->bike_speed << " run speed: " << first_athlete->run_speed  << std::endl;
-    }
-    std::cout << "Team with the shortest total time: Team " << teams[0]->team_id << ", Total time: " << teams[0]->team_total_time << " seconds" << std::endl;
+    return best_team;
 }
-
 

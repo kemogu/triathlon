@@ -8,8 +8,9 @@ public:
     float bike_speed;
     float run_speed;
     float position;
+    float total_position;
     float total_time;
-    int current_parkur; // 0 yüzme, 1 bisiklet, 2 koşma
+    int current_parkur; // 0 yüzme, 1 bisiklet, 2 koşma , 3 bitiş
 
     Athlete();  // default constructor
     Athlete(int athlete_id, float swim_speed_generated);  // parametreli constructor
