@@ -1,0 +1,65 @@
+# C++ ve genel derleyici dosyaları
+*.o
+*.obj
+*.gch
+*.so
+*.a
+*.out
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.idb
+
+# CUDA derleme dosyaları
+*.cu.c
+*.cu.cpp
+*.cu.d
+*.cu.o
+*.ptx
+
+# CMake dosyaları
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Visual Studio Code dosyaları
+.vscode/
+*.code-workspace
+
+# IDE'ye özel dosyalar
+.idea/
+*.iml
+
+# Proje yapı klasörü
+build/
+
+# Diğer istem dışı dosyalar
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Windows'a özel dosyalar
+*.bak
+*.orig
+*.tmp
+*.class
+
+# MacOS'a özel dosyalar
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux'a özel dosyalar
+*~
+
+# İşletim sistemi dosyaları
+desktop.ini
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
